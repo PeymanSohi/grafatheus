@@ -1,0 +1,31 @@
+name: Test Custom Python Exporter
+
+on:
+  push:
+    paths:
+      - 'custom-exporters/**'
+  pull_request:
+    paths:
+      - 'custom-exporters/**'
+
+jobs:
+  test-python-exporter:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r custom-exporters/requirements.txt
+        python custom-exporters/your-app-exporter.py &
+        sleep 5
+        curl -f http://localhost:9200/metrics || exit 1
